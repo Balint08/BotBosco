@@ -11,6 +11,14 @@ ADMIN_ROLE = 1291481484187795487
 ADMIN_CHANNEL = 1291653440111644716
 GENERAL = 1291506155411079178
 
+PRAYS = {
+    "imádott jézusom": 0,
+    "reggeli": 1,
+    "esti": 2,
+    "animátor1": 3,
+    "animátor2": 4
+}
+
 translator = Translator(to_lang="HU")
 
 f = open("quotes.txt", "r", encoding="UTF-8")
@@ -23,6 +31,10 @@ f.close()
 
 f = open("baji_quotes.txt", "r", encoding="UTF-8")
 baji_q = f.readlines()
+f.close()
+
+f = open("prays.txt", "r", encoding="UTF-8")
+prays = f.readlines()
 f.close()
 
 nextMeet = False
@@ -198,6 +210,7 @@ def test_date(month, day):
         return True
 
 
+
 @client.tree.command(name="emlékeztető", description="Küld egy emlékeztetőt azoknak, akik erre az üzenetre reagáltak.",
                      guild=GUILD_ID)
 async def alert(interaction: discord.Interaction, month: int, day: int, hour: int, minutes: int | None):
@@ -268,6 +281,17 @@ async def coinflip(interaction: discord.Interaction):
 
         await interaction.response.send_message(file=tail)
 
+@client.tree.command(name="ima", description="Küld egy imát a rendelkezésre álló imákból.",
+                     guild=GUILD_ID)
+async def pray_f(interaction: discord.Interaction, pray: str):
+    if pray in PRAYS.keys():
+        selected_pray = prays[PRAYS[pray.lower()]].replace(";", "\n")
+        embed = discord.Embed(title="Imádkozzunk együtt!", description=selected_pray, color=discord.Color.gold())
+        await interaction.response.send_message(embed=embed)
+    else:
+        embed = discord.Embed(title="Hiba!", description="Sajnos ilyen ima nem található!", color=discord.Color.red())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
 @client.tree.command(name="segítség", description="Részletes leírást ad a parancsokról.",
                      guild=GUILD_ID)
 async def command_help(interaction: discord.Interaction):
@@ -286,6 +310,9 @@ async def command_help(interaction: discord.Interaction):
                     inline=False)
     embed.add_field(name="/érme-dobás",
                     value="Ez a parancs feldob egy érmét és a végeredmény fej vagy írás.",
+                    inline=False)
+    embed.add_field(name="/ima [pray]",
+                    value="Ez a parancs küld egy imát a rendelkezére állókból. (imádott jézusom, reggeli, esti, \"animátor1\", animátor2)",
                     inline=False)
 
     embed.set_footer(text="Kritikákat, problémákat, hálákat, imákat Tihamér 📖-nak (NBM) lehet küldei. 🥰💖")
